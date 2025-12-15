@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { vim } from '@replit/codemirror-vim';
 import type { Extension } from '@codemirror/state';
@@ -6,6 +6,13 @@ import { createPaste } from '../api';
 import { getLanguageExtension } from '../utils/codemirror';
 import type { PasteCreateResponse } from '../types';
 import type { Language, ExpiryValue } from '../constants';
+
+const STORAGE_KEYS = {
+  content: 'pasty_draft_content',
+  title: 'pasty_draft_title',
+  language: 'pasty_draft_language',
+  vimMode: 'pasty_vim_mode',
+} as const;
 
 interface UsePasteFormReturn {
   // Form state
@@ -38,12 +45,37 @@ interface UsePasteFormReturn {
 export function usePasteForm(): UsePasteFormReturn {
   const navigate = useNavigate();
 
-  // Form state
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [language, setLanguage] = useState<Language>('plaintext');
+  // Form state - initialize from localStorage
+  const [title, setTitle] = useState(() => 
+    localStorage.getItem(STORAGE_KEYS.title) || ''
+  );
+  const [content, setContent] = useState(() => 
+    localStorage.getItem(STORAGE_KEYS.content) || ''
+  );
+  const [language, setLanguage] = useState<Language>(() => 
+    (localStorage.getItem(STORAGE_KEYS.language) as Language) || 'plaintext'
+  );
   const [expiresIn, setExpiresIn] = useState<ExpiryValue>(0);
-  const [vimMode, setVimMode] = useState(false);
+  const [vimMode, setVimMode] = useState(() => 
+    localStorage.getItem(STORAGE_KEYS.vimMode) === 'true'
+  );
+
+  // Persist to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.content, content);
+  }, [content]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.title, title);
+  }, [title]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.language, language);
+  }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.vimMode, String(vimMode));
+  }, [vimMode]);
 
   // Submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,6 +94,15 @@ export function usePasteForm(): UsePasteFormReturn {
     return exts;
   }, [language, vimMode]);
 
+  const clearDraft = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEYS.content);
+    localStorage.removeItem(STORAGE_KEYS.title);
+    localStorage.removeItem(STORAGE_KEYS.language);
+    setContent('');
+    setTitle('');
+    setLanguage('plaintext');
+  }, []);
+
   const handleSubmit = useCallback(async () => {
     if (!content.trim()) return;
 
@@ -74,13 +115,14 @@ export function usePasteForm(): UsePasteFormReturn {
         expires_in: expiresIn || undefined,
       });
       setCreatedPaste(paste);
+      clearDraft(); // Clear draft after successful creation
     } catch (error) {
       console.error('Failed to create paste:', error);
       alert('Failed to create paste. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  }, [content, title, language, expiresIn]);
+  }, [content, title, language, expiresIn, clearDraft]);
 
   const copySecretKey = useCallback(async () => {
     if (!createdPaste) return;
