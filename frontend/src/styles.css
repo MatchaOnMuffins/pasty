@@ -676,7 +676,13 @@ main {
   font-size: 14px;
 }
 
-/* Visit Counter (Header) */
+/* Stats Counters (Header) */
+.stats-counters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .visit-counter {
   display: inline-flex;
   align-items: center;

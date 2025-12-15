@@ -56,7 +56,7 @@ export async function getVisitCount(): Promise<{ visit_count: number }> {
   return response.json();
 }
 
-export async function incrementVisitCount(): Promise<{ visit_count: number }> {
+export async function incrementVisitCount(): Promise<{ visit_count: number; paste_count: number }> {
   const response = await fetch(`${API_BASE}/stats/visits`, {
     method: 'POST',
   });

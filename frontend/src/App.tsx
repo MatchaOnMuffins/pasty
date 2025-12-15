@@ -7,11 +7,15 @@ import { incrementVisitCount } from './api';
 
 function App() {
   const [visitCount, setVisitCount] = useState<number | null>(null);
+  const [pasteCount, setPasteCount] = useState<number | null>(null);
 
   useEffect(() => {
     // Increment visit count on first load
     incrementVisitCount()
-      .then((data) => setVisitCount(data.visit_count))
+      .then((data) => {
+        setVisitCount(data.visit_count);
+        setPasteCount(data.paste_count);
+      })
       .catch(() => {});
   }, []);
   return (
@@ -28,11 +32,18 @@ function App() {
             </motion.div>
             <span className="logo-text">Pasty</span>
           </Link>
-          {visitCount !== null && (
-            <span className="visit-counter">
-               {visitCount.toLocaleString()} views
-            </span>
-          )}
+          <div className="stats-counters">
+            {visitCount !== null && (
+              <span className="visit-counter">
+                {visitCount.toLocaleString()} views
+              </span>
+            )}
+            {pasteCount !== null && (
+              <span className="visit-counter">
+                {pasteCount.toLocaleString()} pastes
+              </span>
+            )}
+          </div>
           <nav className="nav-links">
             <Link to="/" className="nav-link primary">
               + New Paste

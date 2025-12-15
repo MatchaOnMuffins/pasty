@@ -148,19 +148,21 @@ def health_check():
 
 @app.get("/api/stats/visits")
 def get_visit_count(db: Session = Depends(get_db)):
-    """Get the total site visit count."""
+    """Get the total site visit count and paste count."""
     stats = db.query(SiteStats).filter(SiteStats.id == 1).first()
     if not stats:
         stats = SiteStats(id=1, visit_count=0)
         db.add(stats)
         db.commit()
         db.refresh(stats)
-    return {"visit_count": stats.visit_count}
+    
+    paste_count = db.query(Paste).count()
+    return {"visit_count": stats.visit_count, "paste_count": paste_count}
 
 
 @app.post("/api/stats/visits")
 def increment_visit_count(db: Session = Depends(get_db)):
-    """Increment and return the site visit count."""
+    """Increment and return the site visit count and total paste count."""
     stats = db.query(SiteStats).filter(SiteStats.id == 1).first()
     if not stats:
         stats = SiteStats(id=1, visit_count=1)
@@ -169,4 +171,6 @@ def increment_visit_count(db: Session = Depends(get_db)):
         stats.visit_count += 1
     db.commit()
     db.refresh(stats)
-    return {"visit_count": stats.visit_count}
+    
+    paste_count = db.query(Paste).count()
+    return {"visit_count": stats.visit_count, "paste_count": paste_count}
