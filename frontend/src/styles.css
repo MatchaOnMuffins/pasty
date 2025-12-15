@@ -10,6 +10,7 @@
   --accent-secondary: #81a1c1;
   --accent-mint: #8fbcbb;
   --accent-error: #bf616a;
+  --accent-warning: #d08770;
   --accent-gradient: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   --border-subtle: rgba(216, 222, 233, 0.06);
   --border-accent: rgba(136, 192, 208, 0.3);
@@ -858,7 +859,7 @@ main {
 }
 
 .modal-btn.danger:hover {
-  background: #d08770;
+  background: var(--accent-warning);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(191, 97, 106, 0.4);
 }
