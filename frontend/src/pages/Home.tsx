@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { createPaste, listPastes } from '../api';
-import type { PasteListItem } from '../types';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { createPaste } from '../api';
+import type { PasteCreateResponse } from '../types';
 
 const LANGUAGES = [
   'plaintext', 'javascript', 'typescript', 'python', 'rust', 'go',
@@ -20,16 +20,6 @@ const EXPIRY_OPTIONS = [
   { value: 43200, label: '1 month' },
 ];
 
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (seconds < 60) return 'just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
-}
 
 export default function Home() {
   const navigate = useNavigate();
@@ -38,11 +28,8 @@ export default function Home() {
   const [language, setLanguage] = useState('plaintext');
   const [expiresIn, setExpiresIn] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [recentPastes, setRecentPastes] = useState<PasteListItem[]>([]);
-
-  useEffect(() => {
-    listPastes(8).then(setRecentPastes).catch(console.error);
-  }, []);
+  const [createdPaste, setCreatedPaste] = useState<PasteCreateResponse | null>(null);
+  const [secretKeyCopied, setSecretKeyCopied] = useState(false);
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
@@ -55,12 +42,25 @@ export default function Home() {
         language,
         expires_in: expiresIn || undefined,
       });
-      navigate(`/${paste.id}`);
+      setCreatedPaste(paste);
     } catch (error) {
       console.error('Failed to create paste:', error);
       alert('Failed to create paste. Please try again.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const copySecretKey = async () => {
+    if (!createdPaste) return;
+    await navigator.clipboard.writeText(createdPaste.secret_key);
+    setSecretKeyCopied(true);
+    setTimeout(() => setSecretKeyCopied(false), 2000);
+  };
+
+  const goToPaste = () => {
+    if (createdPaste) {
+      navigate(`/${createdPaste.id}`);
     }
   };
 
@@ -165,47 +165,57 @@ export default function Home() {
         </div>
       </motion.div>
 
-      {/*recentPastes.length > 0 && (
-        <motion.div 
-          className="recent-section"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <div className="section-header">
-            <h2 className="section-title">Recent Pastes</h2>
-          </div>
-          <div className="pastes-grid">
-            {recentPastes.map((paste, index) => (
-              <motion.div
-                key={paste.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.05 * index }}
-              >
-                <Link to={`/${paste.id}`} className="paste-card">
-                  <div className="paste-card-info">
-                    <div className="paste-card-icon">
-                      {paste.language.slice(0, 3).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="paste-card-title">
-                        {paste.title || 'Untitled'}
-                      </div>
-                      <div className="paste-card-meta">
-                        {formatTimeAgo(paste.created_at)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="paste-card-views">
-                    {paste.views} view{paste.views !== 1 ? 's' : ''}
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      )*/}
+      {/* Secret Key Modal */}
+      <AnimatePresence>
+        {createdPaste && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="modal"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            >
+              <div className="modal-header">
+                <span className="modal-icon">🔐</span>
+                <h2>Paste Created!</h2>
+              </div>
+              <div className="modal-body">
+                <p className="modal-description">
+                  Save this secret key to delete your paste later. <strong>This will only be shown once!</strong>
+                </p>
+                <div className="secret-key-container">
+                  <code className="secret-key">{createdPaste.secret_key}</code>
+                  <motion.button
+                    className={`copy-secret-btn ${secretKeyCopied ? 'copied' : ''}`}
+                    onClick={copySecretKey}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {secretKeyCopied ? '✓ Copied' : 'Copy'}
+                  </motion.button>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <motion.button
+                  className="modal-btn primary"
+                  onClick={goToPaste}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  View Paste →
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </motion.div>
   );
 }

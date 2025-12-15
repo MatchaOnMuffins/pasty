@@ -8,6 +8,10 @@ export interface Paste {
   views: number;
 }
 
+export interface PasteCreateResponse extends Paste {
+  secret_key: string;
+}
+
 export interface PasteListItem {
   id: string;
   title: string | null;

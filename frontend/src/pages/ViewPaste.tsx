@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Highlight, themes } from 'prism-react-renderer';
-import { getPaste } from '../api';
+import { getPaste, deletePaste } from '../api';
 import type { Paste } from '../types';
 
 function formatDate(dateString: string): string {
@@ -17,11 +17,16 @@ function formatDate(dateString: string): string {
 
 export default function ViewPaste() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [paste, setPaste] = useState<Paste | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [secretKeyInput, setSecretKeyInput] = useState('');
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -43,6 +48,28 @@ export default function ViewPaste() {
     await navigator.clipboard.writeText(window.location.href);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const handleDelete = async () => {
+    if (!id || !secretKeyInput.trim()) return;
+    
+    setIsDeleting(true);
+    setDeleteError(null);
+    
+    try {
+      await deletePaste(id, secretKeyInput.trim());
+      navigate('/');
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete paste');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+    setSecretKeyInput('');
+    setDeleteError(null);
   };
 
   if (loading) {
@@ -130,6 +157,15 @@ export default function ViewPaste() {
           >
             {copied ? '✓ Copied!' : '📋 Copy'}
           </motion.button>
+          <motion.button 
+            className="action-btn"
+            onClick={openDeleteModal}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ color: 'var(--accent-coral)' }}
+          >
+            🗑️ Delete
+          </motion.button>
         </div>
       </div>
 
@@ -192,6 +228,74 @@ export default function ViewPaste() {
           ← Create New Paste
         </Link>
       </motion.div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowDeleteModal(false)}
+          >
+            <motion.div
+              className="modal"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <span className="modal-icon">🗑️</span>
+                <h2>Delete Paste</h2>
+              </div>
+              <div className="modal-body">
+                <p className="modal-description">
+                  Enter the secret key you received when creating this paste to confirm deletion. 
+                  <strong> This action cannot be undone.</strong>
+                </p>
+                <div className="delete-input-group">
+                  <label htmlFor="secret-key">Secret Key</label>
+                  <input
+                    id="secret-key"
+                    type="text"
+                    className="delete-input"
+                    placeholder="Enter your secret key..."
+                    value={secretKeyInput}
+                    onChange={(e) => setSecretKeyInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleDelete()}
+                    autoFocus
+                  />
+                </div>
+                {deleteError && (
+                  <div className="delete-error">{deleteError}</div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <motion.button
+                  className="modal-btn secondary"
+                  onClick={() => setShowDeleteModal(false)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  className="modal-btn danger"
+                  onClick={handleDelete}
+                  disabled={!secretKeyInput.trim() || isDeleting}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete Paste'}
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

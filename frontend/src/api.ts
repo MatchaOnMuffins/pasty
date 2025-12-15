@@ -1,8 +1,11 @@
-import type { Paste, PasteListItem, CreatePasteRequest } from './types';
+import type { Paste, PasteCreateResponse, CreatePasteRequest } from './types';
 
-const API_BASE = '/api';
+// Use environment variable for API URL in production, fallback to relative path for dev
+const API_BASE = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
-export async function createPaste(data: CreatePasteRequest): Promise<Paste> {
+export async function createPaste(data: CreatePasteRequest): Promise<PasteCreateResponse> {
   const response = await fetch(`${API_BASE}/pastes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -29,13 +32,18 @@ export async function getPaste(id: string): Promise<Paste> {
   return response.json();
 }
 
-export async function listPastes(limit = 10): Promise<PasteListItem[]> {
-  const response = await fetch(`${API_BASE}/pastes?limit=${limit}`);
+export async function deletePaste(id: string, secretKey: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/pastes/${id}?secret_key=${encodeURIComponent(secretKey)}`, {
+    method: 'DELETE',
+  });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch pastes');
+    if (response.status === 403) {
+      throw new Error('Invalid secret key');
+    }
+    if (response.status === 404) {
+      throw new Error('Paste not found');
+    }
+    throw new Error('Failed to delete paste');
   }
-
-  return response.json();
 }
-

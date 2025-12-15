@@ -1,28 +1,40 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import secrets
 import string
+import os
 
 from database import init_db, get_db, Paste
-from models import PasteCreate, PasteResponse, PasteListItem
+from models import PasteCreate, PasteResponse, PasteCreateResponse
 
-app = FastAPI(title="Pasty API", version="1.0.0")
 
-# CORS for frontend
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="Pasty API", version="1.0.0", lifespan=lifespan)
+
+# CORS for frontend - configurable via environment variable
+# Default includes localhost for development
+default_origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+if allowed_origins_env:
+    allowed_origins = default_origins + [origin.strip() for origin in allowed_origins_env.split(",")]
+else:
+    allowed_origins = default_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-def startup():
-    init_db()
 
 
 def generate_id(length: int = 8) -> str:
@@ -30,8 +42,12 @@ def generate_id(length: int = 8) -> str:
     alphabet = string.ascii_letters + string.digits
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
+def generate_secret_key() -> str:
+    """Generate a random secret key."""
+    return secrets.token_urlsafe(32)
 
-@app.post("/api/pastes", response_model=PasteResponse)
+
+@app.post("/api/pastes", response_model=PasteCreateResponse)
 def create_paste(paste: PasteCreate, db: Session = Depends(get_db)):
     """Create a new paste."""
     paste_id = generate_id()
@@ -42,7 +58,7 @@ def create_paste(paste: PasteCreate, db: Session = Depends(get_db)):
 
     expires_at = None
     if paste.expires_in:
-        expires_at = datetime.utcnow() + timedelta(minutes=paste.expires_in)
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=paste.expires_in)
 
     db_paste = Paste(
         id=paste_id,
@@ -50,6 +66,7 @@ def create_paste(paste: PasteCreate, db: Session = Depends(get_db)):
         content=paste.content,
         language=paste.language,
         expires_at=expires_at,
+        secret_key=generate_secret_key(),
     )
 
     db.add(db_paste)
@@ -68,10 +85,10 @@ def get_paste(paste_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Paste not found")
 
     # Check expiration
-    if paste.expires_at and paste.expires_at < datetime.utcnow():
+    if paste.expires_at and paste.expires_at < datetime.now(timezone.utc):
         db.delete(paste)
         db.commit()
-        raise HTTPException(status_code=404, detail="Paste has expired")
+        raise HTTPException(status_code=404, detail="Paste not found")
 
     # Increment views
     paste.views += 1
@@ -80,27 +97,16 @@ def get_paste(paste_id: str, db: Session = Depends(get_db)):
 
     return paste
 
-
-@app.get("/api/pastes", response_model=list[PasteListItem])
-def list_pastes(limit: int = 20, db: Session = Depends(get_db)):
-    """List recent pastes."""
-    # Clean up expired pastes
-    db.query(Paste).filter(
-        Paste.expires_at.isnot(None), Paste.expires_at < datetime.utcnow()
-    ).delete()
-    db.commit()
-
-    pastes = db.query(Paste).order_by(Paste.created_at.desc()).limit(limit).all()
-    return pastes
-
-
 @app.delete("/api/pastes/{paste_id}")
-def delete_paste(paste_id: str, db: Session = Depends(get_db)):
+def delete_paste(paste_id: str, secret_key: str, db: Session = Depends(get_db)):
     """Delete a paste."""
     paste = db.query(Paste).filter(Paste.id == paste_id).first()
 
     if not paste:
         raise HTTPException(status_code=404, detail="Paste not found")
+
+    if paste.secret_key != secret_key:
+        raise HTTPException(status_code=403, detail="Invalid secret key")
 
     db.delete(paste)
     db.commit()

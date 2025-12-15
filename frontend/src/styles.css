@@ -594,6 +594,206 @@ main {
   animation: fadeIn 0.4s ease-out;
 }
 
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-icon {
+  font-size: 24px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-body {
+  padding: 20px 24px;
+}
+
+.modal-description {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.modal-description strong {
+  color: var(--accent-amber);
+}
+
+.secret-key-container {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+
+.secret-key {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent-mint);
+  padding: 10px 12px;
+  word-break: break-all;
+  background: transparent;
+}
+
+.copy-secret-btn {
+  padding: 10px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.copy-secret-btn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.copy-secret-btn.copied {
+  background: rgba(40, 200, 64, 0.1);
+  border-color: #28c840;
+  color: #28c840;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 24px;
+}
+
+.modal-btn {
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.modal-btn.primary {
+  background: var(--accent-gradient);
+  color: var(--bg-primary);
+}
+
+.modal-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.modal-btn.secondary {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.modal-btn.secondary:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.modal-btn.danger {
+  background: var(--accent-coral);
+  color: white;
+}
+
+.modal-btn.danger:hover {
+  background: #ff5252;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.modal-btn.danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Delete Modal Input */
+.delete-input-group {
+  margin-top: 16px;
+}
+
+.delete-input-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.delete-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.delete-input:focus {
+  border-color: var(--accent-coral);
+}
+
+.delete-input::placeholder {
+  color: var(--text-muted);
+}
+
+.delete-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--accent-coral);
+  font-size: 13px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .hero h1 {
@@ -612,6 +812,10 @@ main {
   .paste-header {
     flex-direction: column;
     gap: 16px;
+  }
+  
+  .modal {
+    max-width: 100%;
   }
 }
 

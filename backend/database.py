@@ -6,7 +6,12 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./pastes.db")
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# Only use check_same_thread for SQLite
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -21,6 +26,7 @@ class Paste(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     expires_at = Column(DateTime, nullable=True)
     views = Column(Integer, default=0)
+    secret_key = Column(String(64), nullable=False)
 
 
 def init_db():
