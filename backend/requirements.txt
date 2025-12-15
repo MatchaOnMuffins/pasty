@@ -5,3 +5,5 @@ python-multipart
 pydantic
 psycopg2-binary
 python-dotenv
+sqladmin
+itsdangerous

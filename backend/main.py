@@ -9,6 +9,7 @@ import os
 
 from database import init_db, get_db, Paste
 from models import PasteCreate, PasteResponse, PasteCreateResponse
+from admin import setup_admin
 
 
 @asynccontextmanager
@@ -39,6 +40,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+setup_admin(app)
 
 
 def generate_id(length: int = 8) -> str:

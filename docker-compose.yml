@@ -17,6 +17,9 @@ services:
     environment:
       - DATABASE_URL=postgresql://pasty:${POSTGRES_PASSWORD}@db:5432/pasty
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:?ADMIN_USERNAME is required}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY:?ADMIN_SECRET_KEY is required}
     ports:
       - "8351:8000"
     depends_on:
