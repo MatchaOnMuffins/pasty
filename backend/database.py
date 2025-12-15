@@ -29,6 +29,13 @@ class Paste(Base):
     secret_key = Column(String(64), nullable=False)
 
 
+class SiteStats(Base):
+    __tablename__ = "site_stats"
+
+    id = Column(Integer, primary_key=True, default=1)
+    visit_count = Column(Integer, default=0)
+
+
 def init_db():
     Base.metadata.create_all(bind=engine)
 

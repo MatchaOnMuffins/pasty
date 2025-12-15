@@ -6,7 +6,7 @@ from sqladmin.authentication import AuthenticationBackend
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 
-from database import Paste, engine
+from database import Paste, SiteStats, engine
 
 
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
@@ -56,6 +56,14 @@ class PasteAdmin(ModelView, model=Paste):
     can_view_details = True
 
 
+class SiteStatsAdmin(ModelView, model=SiteStats):
+    name = "Site Stats"
+    name_plural = "Site Stats"
+    icon = "fa-solid fa-chart-line"
+    column_list = [SiteStats.id, SiteStats.visit_count]
+    column_sortable_list = [SiteStats.visit_count]
+    column_default_sort = [(SiteStats.visit_count, True)]
+
 def setup_admin(app: FastAPI) -> Admin:
     """Configure and attach the admin panel to the FastAPI app."""
     app.add_middleware(SessionMiddleware, secret_key=ADMIN_SECRET_KEY)
@@ -63,6 +71,7 @@ def setup_admin(app: FastAPI) -> Admin:
     auth_backend = AdminAuth(secret_key=ADMIN_SECRET_KEY)
     admin = Admin(app, engine, authentication_backend=auth_backend)
     admin.add_view(PasteAdmin)
+    admin.add_view(SiteStatsAdmin)
 
     return admin
 

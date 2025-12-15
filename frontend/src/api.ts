@@ -47,3 +47,21 @@ export async function deletePaste(id: string, secretKey: string): Promise<void> 
     throw new Error('Failed to delete paste');
   }
 }
+
+export async function getVisitCount(): Promise<{ visit_count: number }> {
+  const response = await fetch(`${API_BASE}/stats/visits`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch visit count');
+  }
+  return response.json();
+}
+
+export async function incrementVisitCount(): Promise<{ visit_count: number }> {
+  const response = await fetch(`${API_BASE}/stats/visits`, {
+    method: 'POST',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to increment visit count');
+  }
+  return response.json();
+}

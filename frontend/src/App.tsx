@@ -1,9 +1,19 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import ViewPaste from './pages/ViewPaste';
+import { incrementVisitCount } from './api';
 
 function App() {
+  const [visitCount, setVisitCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Increment visit count on first load
+    incrementVisitCount()
+      .then((data) => setVisitCount(data.visit_count))
+      .catch(() => {});
+  }, []);
   return (
     <>
       <header className="header">
@@ -18,6 +28,11 @@ function App() {
             </motion.div>
             <span className="logo-text">Pasty</span>
           </Link>
+          {visitCount !== null && (
+            <span className="visit-counter">
+               {visitCount.toLocaleString()} views
+            </span>
+          )}
           <nav className="nav-links">
             <Link to="/" className="nav-link primary">
               + New Paste
@@ -35,7 +50,7 @@ function App() {
 
       <footer className="footer">
         <div className="container">
-        Built out of spite for Pastebin, which doesn't have a Vim mode • Pasty © {new Date().getFullYear()}
+          Built out of spite for Pastebin, which doesn't have a Vim mode • Pasty © {new Date().getFullYear()}
         </div>
       </footer>
     </>

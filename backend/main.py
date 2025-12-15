@@ -7,7 +7,7 @@ import secrets
 import string
 import os
 
-from database import init_db, get_db, Paste
+from database import init_db, get_db, Paste, SiteStats
 from models import PasteCreate, PasteResponse, PasteCreateResponse
 from admin import setup_admin
 
@@ -144,3 +144,29 @@ def delete_paste(paste_id: str, secret_key: str, db: Session = Depends(get_db)):
 @app.get("/api/health")
 def health_check():
     return {"status": "healthy"}
+
+
+@app.get("/api/stats/visits")
+def get_visit_count(db: Session = Depends(get_db)):
+    """Get the total site visit count."""
+    stats = db.query(SiteStats).filter(SiteStats.id == 1).first()
+    if not stats:
+        stats = SiteStats(id=1, visit_count=0)
+        db.add(stats)
+        db.commit()
+        db.refresh(stats)
+    return {"visit_count": stats.visit_count}
+
+
+@app.post("/api/stats/visits")
+def increment_visit_count(db: Session = Depends(get_db)):
+    """Increment and return the site visit count."""
+    stats = db.query(SiteStats).filter(SiteStats.id == 1).first()
+    if not stats:
+        stats = SiteStats(id=1, visit_count=1)
+        db.add(stats)
+    else:
+        stats.visit_count += 1
+    db.commit()
+    db.refresh(stats)
+    return {"visit_count": stats.visit_count}

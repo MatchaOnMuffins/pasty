@@ -676,6 +676,20 @@ main {
   font-size: 14px;
 }
 
+/* Visit Counter (Header) */
+.visit-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
