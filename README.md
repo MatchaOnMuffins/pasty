@@ -2,6 +2,9 @@
 
 A modern, self-hosted pastebin with Vim mode support.
 
+![](assets/homepage.png)
+
+
 ## Quick Start
 
 ### Installation
