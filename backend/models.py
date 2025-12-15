@@ -11,7 +11,6 @@ class PasteCreate(BaseModel):
 
 
 class PasteResponse(BaseModel):
-    """Public paste response (for viewing) - no secret_key exposed."""
     id: str
     title: Optional[str]
     content: str
@@ -25,7 +24,6 @@ class PasteResponse(BaseModel):
 
 
 class PasteCreateResponse(BaseModel):
-    """Response when creating a paste - includes secret_key for deletion."""
     id: str
     title: Optional[str]
     secret_key: str
@@ -37,4 +35,3 @@ class PasteCreateResponse(BaseModel):
 
     class Config:
         from_attributes = True
-

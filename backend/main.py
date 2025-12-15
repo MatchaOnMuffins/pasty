@@ -19,12 +19,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Pasty API", version="1.0.0", lifespan=lifespan)
 
-# CORS for frontend - configurable via environment variable
-# Default includes localhost for development
-default_origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
+default_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+]
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
 if allowed_origins_env:
-    allowed_origins = default_origins + [origin.strip() for origin in allowed_origins_env.split(",")]
+    allowed_origins = default_origins + [
+        origin.strip() for origin in allowed_origins_env.split(",")
+    ]
 else:
     allowed_origins = default_origins
 
@@ -38,18 +42,35 @@ app.add_middleware(
 
 
 def generate_id(length: int = 8) -> str:
-    """Generate a URL-safe random ID."""
     alphabet = string.ascii_letters + string.digits
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
+
 def generate_secret_key() -> str:
-    """Generate a random secret key."""
     return secrets.token_urlsafe(32)
 
+@app.get("/67")
+def get67(db: Session = Depends(get_db)):
+    secret_key = generate_secret_key()
+    db_paste = Paste(
+        title="67",
+        content="67",
+        expires_at=None,
+        secret_key=secret_key,
+    )
+    db.add(db_paste)
+    db.commit()
+    db.refresh(db_paste)
+
+    return {
+        "flag": "flag{nice_work_you_found_it}",
+        "message": "dm https://www.linkedin.com/in/henry-zhang-umich/ for 67 cents \
+        make sure to include the secret key in your message",
+        "secret_key": db_paste.secret_key,
+    }
 
 @app.post("/api/pastes", response_model=PasteCreateResponse)
 def create_paste(paste: PasteCreate, db: Session = Depends(get_db)):
-    """Create a new paste."""
     paste_id = generate_id()
 
     # Ensure unique ID
@@ -78,7 +99,6 @@ def create_paste(paste: PasteCreate, db: Session = Depends(get_db)):
 
 @app.get("/api/pastes/{paste_id}", response_model=PasteResponse)
 def get_paste(paste_id: str, db: Session = Depends(get_db)):
-    """Get a paste by ID."""
     paste = db.query(Paste).filter(Paste.id == paste_id).first()
 
     if not paste:
@@ -96,6 +116,7 @@ def get_paste(paste_id: str, db: Session = Depends(get_db)):
     db.refresh(paste)
 
     return paste
+
 
 @app.delete("/api/pastes/{paste_id}")
 def delete_paste(paste_id: str, secret_key: str, db: Session = Depends(get_db)):
@@ -116,6 +137,4 @@ def delete_paste(paste_id: str, secret_key: str, db: Session = Depends(get_db)):
 
 @app.get("/api/health")
 def health_check():
-    """Health check endpoint."""
     return {"status": "healthy"}
-
