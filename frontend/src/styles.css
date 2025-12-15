@@ -9,6 +9,7 @@
   --accent-coral: #6366f1;
   --accent-amber: #8b5cf6;
   --accent-mint: #48dbfb;
+  --accent-error: #ef4444;
   --accent-gradient: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-amber) 100%);
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-accent: rgba(99, 102, 241, 0.3);
@@ -648,7 +649,7 @@ main {
 .error-message {
   text-align: center;
   padding: 48px;
-  color: var(--accent-coral);
+  color: var(--accent-error);
 }
 
 .error-message h2 {
@@ -852,7 +853,7 @@ main {
 }
 
 .modal-btn.danger {
-  background: var(--accent-coral);
+  background: var(--accent-error);
   color: white;
 }
 
@@ -908,7 +909,7 @@ main {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: var(--radius-sm);
-  color: var(--accent-coral);
+  color: var(--accent-error);
   font-size: 13px;
 }
 
