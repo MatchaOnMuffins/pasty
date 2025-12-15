@@ -1,0 +1,46 @@
+import { Routes, Route, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import Home from './pages/Home';
+import ViewPaste from './pages/ViewPaste';
+
+function App() {
+  return (
+    <>
+      <header className="header">
+        <div className="container header-content">
+          <Link to="/" className="logo">
+            <motion.div 
+              className="logo-icon"
+              whileHover={{ rotate: 5, scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 400 }}
+            >
+              &lt;/&gt;
+            </motion.div>
+            <span className="logo-text">Pasty</span>
+          </Link>
+          <nav className="nav-links">
+            <Link to="/" className="nav-link primary">
+              + New Paste
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <main className="container">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/:id" element={<ViewPaste />} />
+        </Routes>
+      </main>
+
+      <footer className="footer">
+        <div className="container">
+          Built with care • Pasty © {new Date().getFullYear()}
+        </div>
+      </footer>
+    </>
+  );
+}
+
+export default App;
+
