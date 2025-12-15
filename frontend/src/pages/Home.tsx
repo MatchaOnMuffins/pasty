@@ -51,7 +51,7 @@ export default function Home() {
     >
       <div className="hero">
         <h1>Super quick pastebin</h1>
-        <p>Paste anything, get a link, share it with anyone.</p>
+        <p>Paste anything, get a private link, share it with anyone.</p>
         <p>This thing even has a vim mode</p>
       </div>
 

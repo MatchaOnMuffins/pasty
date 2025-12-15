@@ -35,7 +35,7 @@ function App() {
 
       <footer className="footer">
         <div className="container">
-          Built with care • Pasty © {new Date().getFullYear()}
+        Built out of spite for Pastebin, which doesn't have a Vim mode • Pasty © {new Date().getFullYear()}
         </div>
       </footer>
     </>
