@@ -10,6 +10,7 @@ import os
 from database import init_db, get_db, Paste, SiteStats
 from models import PasteCreate, PasteResponse, PasteCreateResponse
 from admin import setup_admin
+from middleware import access_log_middleware
 
 
 @asynccontextmanager
@@ -40,6 +41,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.middleware("http")(access_log_middleware)
 
 setup_admin(app)
 
