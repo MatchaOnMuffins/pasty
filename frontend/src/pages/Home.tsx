@@ -52,6 +52,7 @@ export default function Home() {
       <div className="hero">
         <h1>Super quick pastebin</h1>
         <p>Paste anything, get a link, share it with anyone.</p>
+        <p>This thing even has vim mode</p>
       </div>
 
       <motion.div
@@ -73,6 +74,14 @@ export default function Home() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+          <button
+            className={`vim-toggle ${vimMode ? 'active' : ''}`}
+            onClick={toggleVimMode}
+            title={vimMode ? 'Disable Vim mode' : 'Enable Vim mode'}
+          >
+            <span className="vim-icon">⌨</span>
+            VIM
+          </button>
           <select
             className="language-select"
             value={language}
@@ -114,14 +123,6 @@ export default function Home() {
                 ))}
               </select>
             </div>
-            <button
-              className={`vim-toggle ${vimMode ? 'active' : ''}`}
-              onClick={toggleVimMode}
-              title={vimMode ? 'Disable Vim mode' : 'Enable Vim mode'}
-            >
-              <span className="vim-icon">⌨</span>
-              VIM
-            </button>
           </div>
           <motion.button
             className="submit-btn"
