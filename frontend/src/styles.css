@@ -1,19 +1,19 @@
 :root {
-  --bg-primary: #0d0d12;
-  --bg-secondary: #16161f;
-  --bg-tertiary: #1e1e2a;
-  --bg-elevated: #252533;
-  --text-primary: #f0f0f5;
-  --text-secondary: #9090a0;
-  --text-muted: #606070;
-  --accent-coral: #6366f1;
-  --accent-amber: #8b5cf6;
-  --accent-mint: #48dbfb;
-  --accent-error: #ef4444;
-  --accent-gradient: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-amber) 100%);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(99, 102, 241, 0.3);
-  --shadow-glow: 0 0 60px rgba(99, 102, 241, 0.15);
+  --bg-primary: #2e3440;
+  --bg-secondary: #3b4252;
+  --bg-tertiary: #434c5e;
+  --bg-elevated: #4c566a;
+  --text-primary: #eceff4;
+  --text-secondary: #d8dee9;
+  --text-muted: #81a1c1;
+  --accent-primary: #88c0d0;
+  --accent-secondary: #81a1c1;
+  --accent-mint: #8fbcbb;
+  --accent-error: #bf616a;
+  --accent-gradient: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  --border-subtle: rgba(216, 222, 233, 0.06);
+  --border-accent: rgba(136, 192, 208, 0.3);
+  --shadow-glow: 0 0 60px rgba(136, 192, 208, 0.15);
   --font-display: 'Outfit', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius-sm: 8px;
@@ -37,8 +37,8 @@ html, body {
 
 body {
   background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(139, 92, 246, 0.05), transparent);
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(136, 192, 208, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(129, 161, 193, 0.05), transparent);
 }
 
 #root {
@@ -68,7 +68,7 @@ body {
 
 /* Selection */
 ::selection {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(136, 192, 208, 0.3);
   color: var(--text-primary);
 }
 
@@ -87,7 +87,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(13, 13, 18, 0.8);
+  background: rgba(46, 52, 64, 0.8);
 }
 
 .header-content {
@@ -256,7 +256,7 @@ main {
 }
 
 .language-select:focus {
-  border-color: var(--accent-coral);
+  border-color: var(--accent-primary);
 }
 
 .editor-body {
@@ -289,15 +289,15 @@ main {
 }
 
 .editor-body.codemirror-wrapper .cm-activeLine {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(216, 222, 233, 0.03);
 }
 
 .editor-body.codemirror-wrapper .cm-selectionBackground {
-  background: rgba(99, 102, 241, 0.2) !important;
+  background: rgba(136, 192, 208, 0.2) !important;
 }
 
 .editor-body.codemirror-wrapper .cm-cursor {
-  border-left-color: var(--accent-coral);
+  border-left-color: var(--accent-primary);
 }
 
 .editor-body.codemirror-wrapper .cm-placeholder {
@@ -326,7 +326,7 @@ main {
 }
 
 .editor-body.codemirror-wrapper .cm-vim-panel input:focus {
-  border-color: var(--accent-coral);
+  border-color: var(--accent-primary);
 }
 
 /* Legacy textarea (keeping for backwards compatibility) */
@@ -436,7 +436,7 @@ main {
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 20px rgba(136, 192, 208, 0.3);
 }
 
 .submit-btn:disabled {
@@ -527,7 +527,7 @@ main {
 .code-language {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--accent-coral);
+  color: var(--accent-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -605,7 +605,7 @@ main {
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--accent-coral);
+  color: var(--accent-primary);
   font-weight: 600;
 }
 
@@ -637,7 +637,7 @@ main {
   width: 40px;
   height: 40px;
   border: 3px solid var(--bg-tertiary);
-  border-top-color: var(--accent-coral);
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -838,7 +838,7 @@ main {
 
 .modal-btn.primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(136, 192, 208, 0.3);
 }
 
 .modal-btn.secondary {
@@ -858,9 +858,9 @@ main {
 }
 
 .modal-btn.danger:hover {
-  background: #ff5252;
+  background: #d08770;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 12px rgba(191, 97, 106, 0.4);
 }
 
 .modal-btn.danger:disabled {
@@ -896,7 +896,7 @@ main {
 }
 
 .delete-input:focus {
-  border-color: var(--accent-coral);
+  border-color: var(--accent-primary);
 }
 
 .delete-input::placeholder {
@@ -906,8 +906,8 @@ main {
 .delete-error {
   margin-top: 12px;
   padding: 10px 12px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(191, 97, 106, 0.1);
+  border: 1px solid rgba(191, 97, 106, 0.3);
   border-radius: var(--radius-sm);
   color: var(--accent-error);
   font-size: 13px;
