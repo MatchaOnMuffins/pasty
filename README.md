@@ -12,8 +12,7 @@ A modern, self-hosted pastebin with Vim mode support.
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/pasty.git
-cd pasty
+git clone https://github.com/MatchaOnMuffins/pasty.git
 ```
 
 2. Create an environment file:
