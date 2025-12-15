@@ -1,6 +1,21 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import CodeMirror from '@uiw/react-codemirror';
+import { vim } from '@replit/codemirror-vim';
+import { javascript } from '@codemirror/lang-javascript';
+import { python } from '@codemirror/lang-python';
+import { html } from '@codemirror/lang-html';
+import { css } from '@codemirror/lang-css';
+import { json } from '@codemirror/lang-json';
+import { markdown } from '@codemirror/lang-markdown';
+import { sql } from '@codemirror/lang-sql';
+import { xml } from '@codemirror/lang-xml';
+import { java } from '@codemirror/lang-java';
+import { cpp } from '@codemirror/lang-cpp';
+import { php } from '@codemirror/lang-php';
+import { rust } from '@codemirror/lang-rust';
+import { go } from '@codemirror/lang-go';
 import { createPaste } from '../api';
 import type { PasteCreateResponse } from '../types';
 
@@ -20,6 +35,50 @@ const EXPIRY_OPTIONS = [
   { value: 43200, label: '1 month' },
 ];
 
+// Get CodeMirror language extension based on selected language
+const getLanguageExtension = (lang: string) => {
+  switch (lang) {
+    case 'javascript':
+    case 'js':
+      return javascript();
+    case 'typescript':
+    case 'ts':
+      return javascript({ typescript: true });
+    case 'python':
+    case 'py':
+      return python();
+    case 'html':
+      return html();
+    case 'css':
+    case 'scss':
+      return css();
+    case 'json':
+      return json();
+    case 'markdown':
+    case 'md':
+      return markdown();
+    case 'sql':
+      return sql();
+    case 'xml':
+    case 'graphql':
+      return xml();
+    case 'java':
+    case 'kotlin':
+      return java();
+    case 'c':
+    case 'cpp':
+    case 'csharp':
+      return cpp();
+    case 'php':
+      return php();
+    case 'rust':
+      return rust();
+    case 'go':
+      return go();
+    default:
+      return [];
+  }
+};
 
 export default function Home() {
   const navigate = useNavigate();
@@ -30,6 +89,15 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdPaste, setCreatedPaste] = useState<PasteCreateResponse | null>(null);
   const [secretKeyCopied, setSecretKeyCopied] = useState(false);
+  const [vimMode, setVimMode] = useState(false);
+
+  const extensions = useMemo(() => {
+    const exts = [];
+    if (vimMode) exts.push(vim());
+    const langExt = getLanguageExtension(language);
+    if (langExt) exts.push(langExt);
+    return exts;
+  }, [language, vimMode]);
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
@@ -61,20 +129,6 @@ export default function Home() {
   const goToPaste = () => {
     if (createdPaste) {
       navigate(`/${createdPaste.id}`);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const target = e.target as HTMLTextAreaElement;
-      const start = target.selectionStart;
-      const end = target.selectionEnd;
-      const newValue = content.substring(0, start) + '  ' + content.substring(end);
-      setContent(newValue);
-      setTimeout(() => {
-        target.selectionStart = target.selectionEnd = start + 2;
-      }, 0);
     }
   };
 
@@ -120,14 +174,30 @@ export default function Home() {
             ))}
           </select>
         </div>
-        <div className="editor-body">
-          <textarea
-            className="code-textarea"
-            placeholder="Paste your code here..."
+        <div className="editor-body codemirror-wrapper">
+          <CodeMirror
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            spellCheck={false}
+            height="400px"
+            extensions={extensions}
+            onChange={(value) => setContent(value)}
+            theme="dark"
+            placeholder="Paste your code here..."
+            basicSetup={{
+              lineNumbers: true,
+              highlightActiveLineGutter: true,
+              highlightActiveLine: true,
+              foldGutter: true,
+              dropCursor: true,
+              allowMultipleSelections: true,
+              indentOnInput: true,
+              bracketMatching: true,
+              closeBrackets: true,
+              autocompletion: false,
+              rectangularSelection: true,
+              crosshairCursor: false,
+              highlightSelectionMatches: true,
+              tabSize: 2,
+            }}
           />
         </div>
         <div className="editor-footer">
@@ -146,6 +216,14 @@ export default function Home() {
                 ))}
               </select>
             </div>
+            <button
+              className={`vim-toggle ${vimMode ? 'active' : ''}`}
+              onClick={() => setVimMode(!vimMode)}
+              title={vimMode ? 'Disable Vim mode' : 'Enable Vim mode'}
+            >
+              <span className="vim-icon">⌨</span>
+              VIM
+            </button>
           </div>
           <motion.button
             className="submit-btn"
@@ -219,4 +297,3 @@ export default function Home() {
     </motion.div>
   );
 }
-
