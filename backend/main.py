@@ -46,6 +46,13 @@ def generate_id(length: int = 8) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
+def generate_unique_id(length: int = 8, db: Session = Depends(get_db)) -> str:
+    id = generate_id(length)
+    while db.query(Paste).filter(Paste.id == id).first():
+        id = generate_id(length)
+    return id
+    
+
 def generate_secret_key() -> str:
     return secrets.token_urlsafe(32)
 
@@ -53,6 +60,7 @@ def generate_secret_key() -> str:
 def get67(db: Session = Depends(get_db)):
     secret_key = generate_secret_key()
     db_paste = Paste(
+        id=generate_unique_id(8, db),
         title="67",
         content="67",
         expires_at=None,
@@ -71,12 +79,7 @@ def get67(db: Session = Depends(get_db)):
 
 @app.post("/api/pastes", response_model=PasteCreateResponse)
 def create_paste(paste: PasteCreate, db: Session = Depends(get_db)):
-    paste_id = generate_id()
-
-    # Ensure unique ID
-    while db.query(Paste).filter(Paste.id == paste_id).first():
-        paste_id = generate_id()
-
+    paste_id = generate_unique_id(8, db)
     expires_at = None
     if paste.expires_in:
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=paste.expires_in)
