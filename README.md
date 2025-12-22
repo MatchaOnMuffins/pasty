@@ -38,6 +38,29 @@ The frontend will be available at `http://localhost:8352` and the backend API at
 
 Now you can configure HTTPS and set up your reverse proxy to route traffic to these ports.
 
+## Kubernetes Deployment
+
+1. Create the namespace and secrets:
+
+```bash
+kubectl create namespace pasty
+
+kubectl create secret generic pasty-secrets \
+  --from-literal=postgres-password='YOUR_DB_PASSWORD' \
+  --from-literal=admin-username='admin' \
+  --from-literal=admin-password='YOUR_ADMIN_PASSWORD' \
+  --from-literal=admin-secret-key='YOUR_SECRET_KEY' \
+  -n pasty
+```
+
+2. Deploy the application:
+
+Note: You might want to change the ingress settings. Currentlly, pasty uses `ingressClassName: cloudflare-tunnel`
+
+```bash
+kubectl apply -f k8s/pasty.yaml
+```
+
 ## Configuration
 
 ### Environment Variables
