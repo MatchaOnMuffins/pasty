@@ -26,10 +26,7 @@ services:
       - db
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        - VITE_API_URL=${VITE_API_URL}
+    build: ./frontend
     restart: unless-stopped
     ports:
       - "8352:80"
