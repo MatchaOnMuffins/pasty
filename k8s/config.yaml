@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pasty-config
+  namespace: pasty
+data:
+  POSTGRES_USER: "pasty"
+  POSTGRES_DB: "pasty"
+  ALLOWED_ORIGINS: "https://pasty-k8s.rchat.fun"
+

@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
+from prometheus_fastapi_instrumentator import Instrumentator
 import secrets
 import string
 import os
@@ -20,6 +21,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Pasty API", version="1.0.0", lifespan=lifespan)
+
+Instrumentator().instrument(app).expose(app)
 
 default_origins = [
     "http://localhost:5173",
