@@ -55,6 +55,7 @@ spec:
           image: prometheuscommunity/postgres-exporter:v0.15.0
           ports:
             - containerPort: 9187
+              name: metrics
           env:
             - name: DATA_SOURCE_URI
               value: "postgres:5432/pasty?sslmode=disable"
@@ -74,7 +75,7 @@ spec:
               cpu: "10m"
             limits:
               memory: "64Mi"
-              cpu: "100m"
+              cpu: "250m"
 
 ---
 apiVersion: v1
